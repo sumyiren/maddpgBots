@@ -13,7 +13,7 @@ nAgents = nSellers * 2
 totalTime = 60
 teamSpirit = 1
 world = world(nSellers, totalTime, teamSpirit)
-vis = visdom.Visdom(port=5274)
+vis = visdom.Visdom(port=8097)
 reward_record = []
 
 np.random.seed(1234)
@@ -21,10 +21,10 @@ th.manual_seed(1234)
 obsSize = 6
 nActions = 4
 capacity = 1000000
-batchSize = 300
+batchSize = 60
 
 n_episode = 20000
-episodes_before_train = 100
+episodes_before_train = 3
 
 win = None
 param = None
@@ -39,18 +39,20 @@ for i_episode in range(n_episode):
         obs = th.from_numpy(obs).float()
     total_reward = 0.0
     rr = np.zeros((nAgents,))
-    for t in range(max_steps):
+    for t in range(totalTime):
         # render every 100 episodes to speed up training
         if i_episode % 100 == 0 and e_render:
             world.render()
         obs = obs.type(FloatTensor)
         action = maddpg.select_action(obs).data.cpu()
-        obs_, reward, done, _ = world.step(action.numpy())
+        actionSeller = np.argmax(np.array(action[0]))
+        actionBuyer = np.argmax(np.array(action[1]))
+        obs_, reward, done = world.stepWorld([actionSeller], [actionBuyer])
 
         reward = th.FloatTensor(reward).type(FloatTensor)
         obs_ = np.stack(obs_)
         obs_ = th.from_numpy(obs_).float()
-        if t != max_steps - 1:
+        if t != totalTime - 1:
             next_obs = obs_
         else:
             next_obs = None

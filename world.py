@@ -33,11 +33,11 @@ class world():
         done = False
         #do seller step first
         for i in range(self.nSellers):
-            self.sellerEnvs[i].step(actions_seller[i], actions_buyer[i])
+            self.sellerEnvs[i].step(actionsSeller[i], actionsBuyer[i])
 
         #do buyer step
         for i in range(self.nSellers):
-            self.buyerEnvs[i].step(actions_buyer[i], actions_seller[i])
+            self.buyerEnvs[i].step(actionsBuyer[i], actionsSeller[i])
 
         #calc rewards for seller and buyer
         for i in range(self.nSellers):
@@ -49,8 +49,8 @@ class world():
             self.sellerStates[i] = { "state": self.sellerEnvs[i].getState(), "reward": self.sellerEnvs[i].getReward() }
             self.buyerStates[i] = { "state": self.buyerEnvs[i].getState(),  "reward": self.buyerEnvs[i].getReward() }
 
-        obs = np.stack(self.sellerEnvs[0].getState().values(), self.buyerEnvs[0].getState().values())
-        reward = np.stack(self.sellerEnvs[0].getReward(), self.buyerEnvs[0].getReward())
+        obs = np.stack((list(self.sellerEnvs[0].getState().values()), list(self.buyerEnvs[0].getState().values())))
+        reward = np.stack((self.sellerEnvs[0].getReward(), self.buyerEnvs[0].getReward()))
         
         return obs, reward, done
         
@@ -77,7 +77,7 @@ class world():
             self.sellerStates.append({ "state": self.sellerEnvs[i].getState(), "reward": self.sellerEnvs[i].getReward() })
             self.buyerStates.append({ "state": self.buyerEnvs[i].getState(), "reward": self.buyerEnvs[i].getReward() })
 
-        return np.stack(self.sellerEnvs[0].getState().values(), self.buyerEnvs[0].getState().values())
+        return np.stack(((list(self.sellerEnvs[0].getState().values()), list(self.buyerEnvs[0].getState().values()))))
         
 
 

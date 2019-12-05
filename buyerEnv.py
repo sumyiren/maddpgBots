@@ -14,7 +14,7 @@ from gym.utils import seeding
 import math
 class buyerEnv():
 
-    actionValues = [-1., 0., +1]
+    actionValues = [-1., 0., +1, 0]
     actionDeal = [0, 0, 0, 1]
 
     def __init__(self, totalTime, sellerStartingPrice, buyerStartingPrice, minPrice):
@@ -53,10 +53,10 @@ class buyerEnv():
         buyerAsk = self.state["buyerAsk"]
         
         if done:
-            if abs(sellerask - buyerask) <= 2 : #maybe 2? - deal made
+            if abs(sellerAsk - buyerAsk) <= 2 : #maybe 2? - deal made
                 reward = 100
                     
-            if sellerask <=0:
+            if buyerAsk <=0:
                 reward = -100
                 
         # else:
