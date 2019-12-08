@@ -51,13 +51,19 @@ class sellerEnv():
         shaping = 0
         sellerAsk = self.state["sellerAsk"]
         buyerAsk = self.state["buyerAsk"]
+        minPrice = self.state["minPrice"]
         
         if done:
-            if abs(sellerAsk - buyerAsk) <= 2 : #maybe 2? - deal made
-                reward = 100
+            if (buyerAsk >= sellerAsk and sellerAsk >= minPrice):
+                # reward = 10
+                reward = buyerAsk - minPrice
                     
+            else:
+                reward = 0
+            
             if sellerAsk <=0:
                 reward = -100
+            
                 
         # else:
 

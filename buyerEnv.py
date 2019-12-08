@@ -17,11 +17,11 @@ class buyerEnv():
     actionValues = [-1., 0., +1, 0]
     actionDeal = [0, 0, 0, 1]
 
-    def __init__(self, totalTime, sellerStartingPrice, buyerStartingPrice, minPrice):
+    def __init__(self, totalTime, sellerStartingPrice, buyerStartingPrice, maxPrice):
         self.state = {
             "sellerAsk": sellerStartingPrice, 
             "buyerAsk": buyerStartingPrice, 
-            "minPrice": minPrice, 
+            "maxPrice": maxPrice, 
             "timeLeft": totalTime,
             "sellerDeal": 0,
             "buyerDeal": 0,
@@ -51,14 +51,18 @@ class buyerEnv():
         shaping = 0
         sellerAsk = self.state["sellerAsk"]
         buyerAsk = self.state["buyerAsk"]
+        maxPrice = self.state["maxPrice"]
         
         if done:
-            if abs(sellerAsk - buyerAsk) <= 2 : #maybe 2? - deal made
-                reward = 100
+            if (buyerAsk >= sellerAsk and buyerAsk <= maxPrice): 
+                reward = maxPrice - buyerAsk
                     
+            else:
+                reward = 0
+                
             if buyerAsk <=0:
                 reward = -100
-                
+                    
         # else:
 
         #     shaping = -2/timeLeft*abs(sellerask-buyerask) # 

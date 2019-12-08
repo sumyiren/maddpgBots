@@ -37,10 +37,14 @@ class world():
 
         #do buyer step
         for i in range(self.nSellers):
-            self.buyerEnvs[i].step(actionsBuyer[i], actionsSeller[i])
+            self.buyerEnvs[i].step(actionsSeller[i], actionsBuyer[i])
 
         #calc rewards for seller and buyer
         for i in range(self.nSellers):
+            # print(self.sellerEnvs[i].getState())
+            # print(self.buyerEnvs[i].getState())
+            # print('--------------------')
+
             done = (self.sellerEnvs[i].getState()["sellerDeal"] == 1 and self.buyerEnvs[i].getState()["buyerDeal"] == 1) or (self.sellerEnvs[i].getState()["timeLeft"] <= 0)
 
             self.sellerEnvs[i].calcSellerReward(done)
@@ -52,7 +56,7 @@ class world():
         obs = np.stack((list(self.sellerEnvs[0].getState().values()), list(self.buyerEnvs[0].getState().values())))
         reward = np.stack((self.sellerEnvs[0].getReward(), self.buyerEnvs[0].getReward()))
         
-        return obs, reward, done
+        return obs, reward, done, [self.sellerEnvs[0].getState(), self.buyerEnvs[0].getState()]
         
         
     def resetWorld(self):

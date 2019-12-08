@@ -1,0 +1,5 @@
+5/11/2019
+
+python -W ignore::UserWarning main.py
+
+source /etc/profile.d/mavenenv.sh
