@@ -160,3 +160,10 @@ class MADDPG:
         self.steps_done += 1
 
         return actions
+
+    def saveModel(self):
+        sellerPath = './models/seller.ckpt'
+        th.save(self.actors[0], sellerPath)
+
+        buyerPath = './models/buyer.ckpt'
+        th.save(self.actors[1], buyerPath)

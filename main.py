@@ -38,6 +38,8 @@ batchSize = 250
 n_episode = 20000
 episodes_before_train = 50
 
+save_every_episodes = 1000
+
 win = None
 param = None
 
@@ -60,10 +62,8 @@ for i_episode in range(n_episode):
         if i_episode % 100 == 0 and e_render:
             world.render()
         obs = obs.type(FloatTensor)
-        action = maddpg.select_action(obs).data.cpu()
-        actionSeller = np.argmax(np.array(action[0]))
-        actionBuyer = np.argmax(np.array(action[1]))
-        obs_, reward, done, obs_state_ = world.stepWorld([actionSeller], [actionBuyer])
+        actions = maddpg.select_action(obs).data.cpu()
+        obs_, reward, done = world.stepWorld(actions)
 
         reward = th.FloatTensor(reward).type(FloatTensor)
         obs_ = np.stack(obs_)
@@ -71,13 +71,13 @@ for i_episode in range(n_episode):
         next_obs = obs_
         total_reward += reward.sum()
         rr += reward.cpu().numpy()
-        maddpg.memory.push(obs.data, action, next_obs, reward)
+        maddpg.memory.push(obs.data, actions, next_obs, reward)
         obs = next_obs
 
         c_loss, a_loss = maddpg.update_policy()
     maddpg.episode_done += 1
     print('Episode: %d, reward = %f' % (i_episode, total_reward))
-    print(obs_state_)
+    print(obs_)
     reward_record.append(total_reward)
     sellerRewardAverager100.append(rr[0])
     buyerRewardAverager100.append(rr[1])
@@ -95,6 +95,10 @@ for i_episode in range(n_episode):
               'scale_reward=%f\n' % scale_reward +
               'agent=%d' % nAgents +
               ' \nlr=0.001, 0.0001, sensor_range=0.3\n')
+
+    if maddpg.episode_done % save_every_episodes == 0:
+        print('saving now...')
+        # maddpg.saveModel()
 
     if win is None:
         win = vis.line(X=np.arange(i_episode, i_episode+1),

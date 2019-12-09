@@ -26,37 +26,33 @@ class world():
         self.teamSpirit = teamSpirit
 
         for i in range(self.nSellers):
-            self.sellerEnvs.append(sellerEnv(self.totalTime, 0, 0, 0))
-            self.buyerEnvs.append(buyerEnv(self.totalTime, 0, 0, 0))
+            self.sellerEnvs.append(sellerEnv())
+            self.buyerEnvs.append(buyerEnv())
 
-    def stepWorld(self, actionsSeller, actionsBuyer):
+    def stepWorld(self, actions):
         done = False
-        #do seller step first
+        actions = [np.argmax(action) for action in actions]
+        actionsSeller = actions[0:self.nSellers]
+        actionsBuyer = actions[self.nSellers:self.nSellers*2]
         for i in range(self.nSellers):
-            self.sellerEnvs[i].step(actionsSeller[i], actionsBuyer[i])
+            otherSellerActions = actionsSeller.copy()
+            otherSellerActions = np.delete(otherSellerActions, i)
+            otherBuyerActions = actionsBuyer.copy()
+            otherBuyerActions = np.delete(otherBuyerActions, i)
 
-        #do buyer step
-        for i in range(self.nSellers):
+            self.sellerEnvs[i].step(actionsSeller[i], actionsBuyer[i], otherSellerActions, otherBuyerActions)
             self.buyerEnvs[i].step(actionsSeller[i], actionsBuyer[i])
 
         #calc rewards for seller and buyer
         for i in range(self.nSellers):
-            # print(self.sellerEnvs[i].getState())
-            # print(self.buyerEnvs[i].getState())
-            # print('--------------------')
+            self.sellerEnvs[i].calcSellerReward()
+            self.buyerEnvs[i].calcBuyerReward()
 
-            done = (self.sellerEnvs[i].getState()["sellerDeal"] == 1 and self.buyerEnvs[i].getState()["buyerDeal"] == 1) or (self.sellerEnvs[i].getState()["timeLeft"] <= 0)
+        obs = self.getObs()
+        rewards = self.getReward()
+        done = self.getDone()
 
-            self.sellerEnvs[i].calcSellerReward(done)
-            self.buyerEnvs[i].calcBuyerReward(done)
-
-            self.sellerStates[i] = { "state": self.sellerEnvs[i].getState(), "reward": self.sellerEnvs[i].getReward() }
-            self.buyerStates[i] = { "state": self.buyerEnvs[i].getState(),  "reward": self.buyerEnvs[i].getReward() }
-
-        obs = np.stack((list(self.sellerEnvs[0].getState().values()), list(self.buyerEnvs[0].getState().values())))
-        reward = np.stack((self.sellerEnvs[0].getReward(), self.buyerEnvs[0].getReward()))
-        
-        return obs, reward, done, [self.sellerEnvs[0].getState(), self.buyerEnvs[0].getState()]
+        return obs, rewards, done
         
         
     def resetWorld(self):
@@ -68,21 +64,54 @@ class world():
         
         self.sellerEnvs = []
         self.buyerEnvs = []
-        self.sellerStates = []
-        self.buyerStates = []
+
+        sellerAsks = []
+        buyerAsks = []
 
         for i in range(self.nSellers):
             
             buyerStartingPrice = random.randint(n1, sellerStartingPrice)
             maxPrice = random.randint(buyerStartingPrice, buyerStartingPrice + n2)
             
-            self.sellerEnvs.append(sellerEnv(self.totalTime, sellerStartingPrice, buyerStartingPrice, minPrice))
+            buyerAsks.append(buyerStartingPrice)
             self.buyerEnvs.append(buyerEnv(self.totalTime, sellerStartingPrice, buyerStartingPrice, maxPrice))
-            self.sellerStates.append({ "state": self.sellerEnvs[i].getState(), "reward": self.sellerEnvs[i].getReward() })
-            self.buyerStates.append({ "state": self.buyerEnvs[i].getState(), "reward": self.buyerEnvs[i].getReward() })
 
-        return np.stack(((list(self.sellerEnvs[0].getState().values()), list(self.buyerEnvs[0].getState().values()))))
+        for i in range(self.nSellers):
+            otherSellerAsks = [sellerStartingPrice] * (self.nSellers-1)
+            otherBuyerAsks = buyerAsks.copy()
+            del otherBuyerAsks[i]
+            self.sellerEnvs.append(sellerEnv(self.totalTime, sellerStartingPrice, buyerStartingPrice, minPrice, otherSellerAsks, otherBuyerAsks))
         
+        return self.getObs()
+        
+    def getObs(self):
+        obs = []
+        for i in range(self.nSellers):
+            obs.append(self.sellerEnvs[i].getListState())
+        for i in range(self.nSellers):
+            obs.append(self.buyerEnvs[i].getListState())
+
+        return np.array(obs)
+
+    def getReward(self):
+        rewards = []
+        for i in range(self.nSellers):
+            rewards.append(self.sellerEnvs[i].getReward())
+        for i in range(self.nSellers):
+            rewards.append(self.buyerEnvs[i].getReward())
+
+        return np.array(rewards)
+
+
+    def getDone(self):
+        dones = []
+        for i in range(self.nSellers):
+            dones.append(self.sellerEnvs[i].getDone())
+        for i in range(self.nSellers):
+            dones.append(self.buyerEnvs[i].getDone())
+        done = all(dones)
+
+        return done
 
 
         

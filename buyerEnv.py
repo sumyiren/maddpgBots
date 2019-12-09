@@ -17,36 +17,39 @@ class buyerEnv():
     actionValues = [-1., 0., +1, 0]
     actionDeal = [0, 0, 0, 1]
 
-    def __init__(self, totalTime, sellerStartingPrice, buyerStartingPrice, maxPrice):
+    def __init__(self, totalTime = 0, sellerStartingPrice = 0, buyerStartingPrice = 0, maxPrice = 0):
         self.state = {
             "sellerAsk": sellerStartingPrice, 
             "buyerAsk": buyerStartingPrice, 
-            "maxPrice": maxPrice, 
-            "timeLeft": totalTime,
             "sellerDeal": 0,
             "buyerDeal": 0,
+            "maxPrice": maxPrice, 
+            "timeLeft": totalTime,
         }
 
         self.reward = 0
         self.shaping = None
         self.prev_shaping = None
+        self.done = False
         
     def step(self, actionSeller, actionBuyer):
         # state = self.state
         # sellerask, buyerask, minPrice, timeLeft = state
+        if not self.done:
+            plusMinusBuyer = self.actionValues[actionBuyer]
+            dealBuyer = self.actionDeal[actionBuyer]
+            plusMinusSeller = self.actionValues[actionSeller]
+            dealSeller = self.actionDeal[actionSeller]
+            self.state["sellerAsk"] += plusMinusSeller
+            self.state["buyerAsk"] += plusMinusBuyer
+            self.state["sellerDeal"] = dealSeller
+            self.state["buyerDeal"] = dealBuyer
+            self.state["timeLeft"] -= 1
+            self.done = (self.state["sellerDeal"] == 1 and self.state["buyerDeal"] == 1) or (self.state["timeLeft"] <= 0)
 
-        plusMinusBuyer = self.actionValues[actionBuyer]
-        dealBuyer = self.actionDeal[actionBuyer]
-        plusMinusSeller = self.actionValues[actionSeller]
-        dealSeller = self.actionDeal[actionSeller]
-        self.state["sellerAsk"] += plusMinusSeller
-        self.state["buyerAsk"] += plusMinusBuyer
-        self.state["sellerDeal"] = dealSeller
-        self.state["buyerDeal"] = dealBuyer
-        self.state["timeLeft"] -= 1
-
-
-    def calcBuyerReward(self, done):
+    
+    def calcBuyerReward(self):
+        done = self.done
         reward = 0
         shaping = 0
         sellerAsk = self.state["sellerAsk"]
@@ -85,6 +88,23 @@ class buyerEnv():
 
     def getState(self):
         return self.state
+
+    def getDone(self):
+        return self.done
+
+
+    def getListState(self):
+        # state should be array of [sellerAsk, buyerAsk, sellerDeal, buyerDeal, maxPrice, timeLeft]
+        
+        listState = [
+            self.state["sellerAsk"],
+            self.state["buyerAsk"], 
+            self.state["sellerDeal"],
+            self.state["buyerDeal"],
+            self.state["maxPrice"], 
+            self.state["timeLeft"], 
+        ]
+        return listState
         
     
     
