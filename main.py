@@ -20,7 +20,7 @@ class MovingAverager:
 # do not render the scene
 e_render = False
 
-nSellers = 1
+nSellers = 2
 nAgents = nSellers * 2
 totalTime = 60
 teamSpirit = 1
@@ -30,7 +30,7 @@ reward_record = []
 
 np.random.seed(1234)
 th.manual_seed(1234)
-obsSize = 6
+obsSize = 4*nSellers+2
 nActions = 4
 capacity = 1000000
 batchSize = 250
@@ -46,8 +46,8 @@ param = None
 maddpg = MADDPG(nAgents, obsSize, nActions, batchSize, capacity,
                 episodes_before_train)
 
-sellerRewardAverager100 = MovingAverager(100)
-buyerRewardAverager100 = MovingAverager(100)
+rewardAveragers = [MovingAverager(100)] * nAgents
+averageReward100 = [0] * nAgents
 
 FloatTensor = th.cuda.FloatTensor if maddpg.use_cuda else th.FloatTensor
 for i_episode in range(n_episode):
@@ -78,13 +78,8 @@ for i_episode in range(n_episode):
     maddpg.episode_done += 1
     print('Episode: %d, reward = %f' % (i_episode, total_reward))
     print(obs_)
-    reward_record.append(total_reward)
-    sellerRewardAverager100.append(rr[0])
-    buyerRewardAverager100.append(rr[1])
-    sellerAverageReward100 = sellerRewardAverager100.average()
-    buyerAverageReward100 = buyerRewardAverager100.average()
 
-    # reset
+  # reset
     done = True
     next_obs = None
 
@@ -96,13 +91,23 @@ for i_episode in range(n_episode):
               'agent=%d' % nAgents +
               ' \nlr=0.001, 0.0001, sensor_range=0.3\n')
 
+
+    if maddpg.episode_done > maddpg.episodes_before_train:
+        reward_record.append(total_reward)
+        
+        for i in range(nAgents):
+            rewardAveragers[i].append(reward[i])
+            print(reward[i])
+            averageReward100[i] = rewardAveragers[i].average()
+
+
     if maddpg.episode_done % save_every_episodes == 0:
         print('saving now...')
         # maddpg.saveModel()
 
     if win is None:
         win = vis.line(X=np.arange(i_episode, i_episode+1),
-                       Y=np.array([[sellerAverageReward100, buyerAverageReward100]]),
+                       Y=np.array([averageReward100]),
                        opts=dict(
                            ylabel='Average Reward over 100 eps',
                            xlabel='Episode',
@@ -113,7 +118,7 @@ for i_episode in range(n_episode):
     else:
         vis.line(X=np.array(
             [np.array(i_episode).repeat(nAgents)]),
-                 Y=np.array([[sellerAverageReward100, buyerAverageReward100]]),
+                 Y=np.array([averageReward100]),
                  win=win,
                  update='append')
     if param is None:

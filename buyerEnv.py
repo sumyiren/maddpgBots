@@ -17,7 +17,7 @@ class buyerEnv():
     actionValues = [-1., 0., +1, 0]
     actionDeal = [0, 0, 0, 1]
 
-    def __init__(self, totalTime = 0, sellerStartingPrice = 0, buyerStartingPrice = 0, maxPrice = 0):
+    def __init__(self, totalTime = 0, sellerStartingPrice = 0, buyerStartingPrice = 0, maxPrice = 0, nSellers = 0):
         self.state = {
             "sellerAsk": sellerStartingPrice, 
             "buyerAsk": buyerStartingPrice, 
@@ -27,6 +27,7 @@ class buyerEnv():
             "timeLeft": totalTime,
         }
 
+        self.nSellers = nSellers
         self.reward = 0
         self.shaping = None
         self.prev_shaping = None
@@ -104,6 +105,8 @@ class buyerEnv():
             self.state["maxPrice"], 
             self.state["timeLeft"], 
         ]
+
+        listState = listState + ([0]*(4*(self.nSellers-1)))
         return listState
         
     

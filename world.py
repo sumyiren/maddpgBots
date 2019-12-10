@@ -74,12 +74,13 @@ class world():
             maxPrice = random.randint(buyerStartingPrice, buyerStartingPrice + n2)
             
             buyerAsks.append(buyerStartingPrice)
-            self.buyerEnvs.append(buyerEnv(self.totalTime, sellerStartingPrice, buyerStartingPrice, maxPrice))
+            self.buyerEnvs.append(buyerEnv(self.totalTime, sellerStartingPrice, buyerStartingPrice, maxPrice, self.nSellers))
 
         for i in range(self.nSellers):
             otherSellerAsks = [sellerStartingPrice] * (self.nSellers-1)
             otherBuyerAsks = buyerAsks.copy()
             del otherBuyerAsks[i]
+            buyerStartingPrice = buyerAsks[i]
             self.sellerEnvs.append(sellerEnv(self.totalTime, sellerStartingPrice, buyerStartingPrice, minPrice, otherSellerAsks, otherBuyerAsks))
         
         return self.getObs()
@@ -87,11 +88,10 @@ class world():
     def getObs(self):
         obs = []
         for i in range(self.nSellers):
-            obs.append(self.sellerEnvs[i].getListState())
+            obs.append(np.array(self.sellerEnvs[i].getListState()))
         for i in range(self.nSellers):
-            obs.append(self.buyerEnvs[i].getListState())
-
-        return np.array(obs)
+            obs.append(np.array(self.buyerEnvs[i].getListState()))
+        return np.stack(obs)
 
     def getReward(self):
         rewards = []

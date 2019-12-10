@@ -63,8 +63,8 @@ class sellerEnv():
             dealBuyer = self.actionDeal[buyerAction]
             plusMinusSeller = self.actionValues[sellerAction]
             dealSeller = self.actionDeal[sellerAction]
-            self.state["sellerAsk"] = plusMinusSeller
-            self.state["buyerAsk"] = plusMinusBuyer
+            self.state["sellerAsk"] += plusMinusSeller
+            self.state["buyerAsk"] += plusMinusBuyer
             self.state["sellerDeal"] = dealSeller
             self.state["buyerDeal"] = dealBuyer
             self.state["timeLeft"] -= 1
