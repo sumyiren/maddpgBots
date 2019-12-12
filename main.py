@@ -23,8 +23,6 @@ e_render = False
 nSellers = 2
 nAgents = nSellers * 2
 totalTime = 60
-teamSpirit = 1
-world = world(nSellers, totalTime, teamSpirit)
 vis = visdom.Visdom(port=8097)
 reward_record = []
 
@@ -38,10 +36,16 @@ batchSize = 250
 n_episode = 20000
 episodes_before_train = 50
 
+teamSpirit = 0
+teamSpirit_eps = 1/n_episode
+
 save_every_episodes = 1000
 
 win = None
+win2 = None
 param = None
+
+world = world(nSellers, totalTime, teamSpirit)
 
 maddpg = MADDPG(nAgents, obsSize, nActions, batchSize, capacity,
                 episodes_before_train)
@@ -82,6 +86,8 @@ for i_episode in range(n_episode):
   # reset
     done = True
     next_obs = None
+    teamSpirit += teamSpirit_eps
+    world.teamSpirit = teamSpirit
 
 
     if maddpg.episode_done == maddpg.episodes_before_train:
@@ -111,7 +117,7 @@ for i_episode in range(n_episode):
                        opts=dict(
                            ylabel='Average Reward over 100 eps',
                            xlabel='Episode',
-                           title='MADDPG on Bots\n' +
+                           title='Average Reward over 100 MADDPG on Bots\n' +
                            'agent=%d' % nAgents +
                            ', sensor_range=0.2\n',
                            legend=['Agent-%d' % i for i in range(nAgents)]))
@@ -121,6 +127,25 @@ for i_episode in range(n_episode):
                  Y=np.array([averageReward100]),
                  win=win,
                  update='append')
+
+
+    if win2 is None:
+        win2 = vis.line(X=np.arange(i_episode, i_episode+1),
+                       Y=np.array([reward.numpy()]),
+                       opts=dict(
+                           ylabel='Actual Reward eps',
+                           xlabel='Episode',
+                           title='Actual Reward MADDPG on Bots\n' +
+                           'agent=%d' % nAgents +
+                           ', sensor_range=0.2\n',
+                           legend=['Agent-%d' % i for i in range(nAgents)]))
+    else:
+        vis.line(X=np.array(
+            [np.array(i_episode).repeat(nAgents)]),
+                 Y=np.array([reward.numpy()]),
+                 win=win2,
+                 update='append')
+
     if param is None:
         param = vis.line(X=np.arange(i_episode, i_episode+1),
                          Y=np.array([maddpg.var[0]]),

@@ -49,7 +49,9 @@ class world():
             self.buyerEnvs[i].calcBuyerReward()
 
         obs = self.getObs()
-        rewards = self.getReward()
+        sellerRewards = self.getSellerRewards()
+        buyerRewards = self.getBuyerRewards()
+        rewards = np.concatenate([sellerRewards, buyerRewards])
         done = self.getDone()
 
         return obs, rewards, done
@@ -93,14 +95,30 @@ class world():
             obs.append(np.array(self.buyerEnvs[i].getListState()))
         return np.stack(obs)
 
-    def getReward(self):
-        rewards = []
+    def getSellerRewards(self):
+        sellerRewards = []
         for i in range(self.nSellers):
-            rewards.append(self.sellerEnvs[i].getReward())
-        for i in range(self.nSellers):
-            rewards.append(self.buyerEnvs[i].getReward())
+            sellerRewards.append(self.sellerEnvs[i].getReward()) 
+        maxSellerReward = max(sellerRewards)
+        for i in range(len(sellerRewards)):
+            if sellerRewards[i] >= 0:
+                sellerRewards[i] = self.teamSpirit*maxSellerReward + (1-self.teamSpirit)*sellerRewards[i]
+        return np.array(sellerRewards)
 
-        return np.array(rewards)
+    def getBuyerRewards(self):
+        buyerRewards = []
+        for i in range(self.nSellers):
+            buyerRewards.append(self.buyerEnvs[i].getReward())
+        maxPos = np.argmax(buyerRewards)
+        maxVal = max(buyerRewards)
+        finalBuyerRewards = [0] * self.nSellers
+        finalBuyerRewards[maxPos] = maxVal
+
+        for i in range(self.nSellers):
+            if buyerRewards[i] < 0:
+                finalBuyerRewards[i] = buyerRewards[i]
+
+        return np.array(finalBuyerRewards)
 
 
     def getDone(self):
