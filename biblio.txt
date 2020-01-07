@@ -7,4 +7,32 @@ source /etc/profile.d/mavenenv.sh
 
 9/12/2019
 
- python -m visdom.server
+python -m visdom.server
+
+
+27/12/2019
+
+Project name: Nagents
+
+What problem are you solving?
+
+Online goods are usually sold at a fixed price. Sellers and buyers are unable to negotiate on an optimum price for a product based on its demand. In an ideal negotiation-based world, high demand (many buyers) for a product would allow sellers to reach a higher price for its product, while low demand (few buyers) for a product would allow buyers to get a bargain for the product. This is currently not done because for a basic seller and buyer (like you and me) staring at a computer screen for hours negotiating on these price points is too time-consuming.
+
+What is your solution to this problem?
+
+Nagents (which stands for Negotiating Agents) is a platform which allows sellers and buyers to train agents (or bots) which can negotiate and trade goods. The complexity of reinforcement learning is abstracted away from the user. Instead, users would simply define a reward structure based on their risk/reward appetite, and the the platform would train such an agent for them (which they can use to negotiate prices with).
+
+Give us more detail of what you have done?
+
+ Using a technique called Multiagent reinforcement learning, seller and buyer agents have successfully trained. Reward structuring plays a big part in reinforcement learning, with subtle changes having the ability to cause large improvements or deterioration of negotiation qualities. Thus, different reward structures have been used to train many different agents, to ensure that this variety exists.
+
+ With this proof-of-concept part successfully tested, the next step is to build the actual platform and allow users to use and train their own
+ 
+
+
+ 1/1/2020
+
+ Plan for this year:
+ actually get 1-5 users on this to try this out
+
+ its about time, its been year and the half in the making..

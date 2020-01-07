@@ -20,7 +20,7 @@ class MovingAverager:
 # do not render the scene
 e_render = False
 
-nSellers = 2
+nSellers = 3
 nAgents = nSellers * 2
 totalTime = 60
 vis = visdom.Visdom(port=8097)
@@ -33,13 +33,13 @@ nActions = 4
 capacity = 1000000
 batchSize = 250
 
-n_episode = 20000
-episodes_before_train = 50
+n_episode = 60000
+episodes_before_train = 500
 
 teamSpirit = 0
 teamSpirit_eps = 1/n_episode
 
-save_every_episodes = 1000
+save_every_episodes = 2000
 
 win = None
 win2 = None
@@ -109,7 +109,7 @@ for i_episode in range(n_episode):
 
     if maddpg.episode_done % save_every_episodes == 0:
         print('saving now...')
-        # maddpg.saveModel()
+        maddpg.saveModel(maddpg.episode_done)
 
     if win is None:
         win = vis.line(X=np.arange(i_episode, i_episode+1),

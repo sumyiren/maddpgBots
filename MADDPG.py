@@ -161,9 +161,7 @@ class MADDPG:
 
         return actions
 
-    def saveModel(self):
-        sellerPath = './models/seller.ckpt'
-        th.save(self.actors[0], sellerPath)
-
-        buyerPath = './models/buyer.ckpt'
-        th.save(self.actors[1], buyerPath)
+    def saveModel(self, numEpisodes):
+        for i in range(len(self.actors)):
+            path = './models/model'+str(i)+'_'+str(numEpisodes)+'eps.ckpt'
+            th.save(self.actors[i], path)
