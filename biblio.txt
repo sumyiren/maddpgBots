@@ -36,3 +36,13 @@ Give us more detail of what you have done?
  actually get 1-5 users on this to try this out
 
  its about time, its been year and the half in the making..
+
+
+ 7/1/2020
+
+ https://www.youtube.com/watch?v=bNpx7gpSqbY
+ timing is key - is this the right time for nagents?
+
+
+ 11/1/2020
+ export YOURAPPLICATION_SETTINGS=/home/sumyiren/Documents/Development/NegoAIMaddpg/config.cfg

@@ -6,11 +6,6 @@ Created on Fri Jul 27 15:18:58 2018
 @author: sumyiren
 """
 
-#Seller Environment
-
-
-import gym
-from gym.utils import seeding
 import math
 class buyerEnv():
 

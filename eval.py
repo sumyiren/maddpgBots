@@ -1,8 +1,7 @@
 import torch as th
 import numpy as np
 
-sellerPath = './models/seller.ckpt'
-buyerPath = './models/buyer.ckpt'
+sellerPath = './models/model0_2000eps.ckpt'
 
 model = th.load(sellerPath)
 model.eval()

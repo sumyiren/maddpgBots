@@ -15,7 +15,7 @@ import random
 
 class world():
 
-    def __init__(self, nSellers, totalTime, teamSpirit):
+    def __init__(self, nSellers, totalTime, teamSpirit=1):
         self.nSellers = nSellers
         self.totalTime = totalTime
         self.nSellers = nSellers

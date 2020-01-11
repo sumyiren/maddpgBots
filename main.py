@@ -33,11 +33,11 @@ nActions = 4
 capacity = 1000000
 batchSize = 250
 
-n_episode = 60000
-episodes_before_train = 500
+n_episode = 10000
+episodes_before_train = 300
 
-teamSpirit = 0
-teamSpirit_eps = 1/n_episode
+teamSpirit = 1 #0
+teamSpirit_eps = 0 #1/n_episode
 
 save_every_episodes = 2000
 

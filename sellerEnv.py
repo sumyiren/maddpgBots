@@ -8,9 +8,6 @@ Created on Fri Jul 27 15:18:58 2018
 
 #Seller Environment
 
-
-import gym
-from gym.utils import seeding
 import math
 class sellerEnv():
 
@@ -45,6 +42,9 @@ class sellerEnv():
         # state = self.state
         # sellerask, buyerask, minPrice, timeLeft = state
         for i in range(len(otherSellerActions)):
+
+            done = (self.state["otherSellerDeals"][i] == 1 and self.state["otherBuyerDeals"][i] == 1)
+            
             otherBuyerAction = otherBuyerActions[i]
             plusMinusBuyer = self.actionValues[otherBuyerAction]
             dealBuyer = self.actionDeal[otherBuyerAction]
@@ -53,10 +53,12 @@ class sellerEnv():
             plusMinusSeller = self.actionValues[otherSellerAction]
             dealSeller = self.actionDeal[otherSellerAction]
 
-            self.state["otherSellerAsks"][i] += plusMinusSeller
-            self.state["otherSellerDeals"][i] = dealSeller
-            self.state["otherBuyerAsks"][i] += plusMinusBuyer
-            self.state["otherBuyerDeals"][i] = dealBuyer
+            if not done:
+                self.state["otherSellerAsks"][i] += plusMinusSeller
+                self.state["otherSellerDeals"][i] = dealSeller
+                self.state["otherBuyerAsks"][i] += plusMinusBuyer
+                self.state["otherBuyerDeals"][i] = dealBuyer
+
 
         if not self.done:
             plusMinusBuyer = self.actionValues[buyerAction]
