@@ -31,6 +31,8 @@ class buyerEnv():
     def step(self, actionSeller, actionBuyer):
         # state = self.state
         # sellerask, buyerask, minPrice, timeLeft = state
+        self.state["timeLeft"] -= 1
+
         if not self.done:
             plusMinusBuyer = self.actionValues[actionBuyer]
             dealBuyer = self.actionDeal[actionBuyer]
@@ -40,7 +42,6 @@ class buyerEnv():
             self.state["buyerAsk"] += plusMinusBuyer
             self.state["sellerDeal"] = dealSeller
             self.state["buyerDeal"] = dealBuyer
-            self.state["timeLeft"] -= 1
             self.done = (self.state["sellerDeal"] == 1 and self.state["buyerDeal"] == 1) or (self.state["timeLeft"] <= 0)
 
     
@@ -53,11 +54,13 @@ class buyerEnv():
         maxPrice = self.state["maxPrice"]
         
         if done:
-            if (buyerAsk >= sellerAsk and buyerAsk <= maxPrice): 
+            if (buyerAsk >= sellerAsk): 
                 reward = maxPrice - buyerAsk
+            # if (buyerAsk >= sellerAsk and buyerAsk <= maxPrice): 
+            #     reward = maxPrice - buyerAsk
                     
-            else:
-                reward = 0
+            # else:
+            #     reward = 0
                 
             if buyerAsk <=0:
                 reward = -100

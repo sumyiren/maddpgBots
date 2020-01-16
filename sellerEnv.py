@@ -59,7 +59,7 @@ class sellerEnv():
                 self.state["otherBuyerAsks"][i] += plusMinusBuyer
                 self.state["otherBuyerDeals"][i] = dealBuyer
 
-
+        self.state["timeLeft"] -= 1
         if not self.done:
             plusMinusBuyer = self.actionValues[buyerAction]
             dealBuyer = self.actionDeal[buyerAction]
@@ -69,7 +69,6 @@ class sellerEnv():
             self.state["buyerAsk"] += plusMinusBuyer
             self.state["sellerDeal"] = dealSeller
             self.state["buyerDeal"] = dealBuyer
-            self.state["timeLeft"] -= 1
             self.done = (self.state["sellerDeal"] == 1 and self.state["buyerDeal"] == 1) or (self.state["timeLeft"] <= 0)
 
 
@@ -82,12 +81,13 @@ class sellerEnv():
         minPrice = self.state["minPrice"]
         
         if done:
-            if (buyerAsk >= sellerAsk and sellerAsk >= minPrice):
-                # reward = 10
+            # if (buyerAsk >= sellerAsk and sellerAsk >= minPrice):
+            #     reward = buyerAsk - minPrice
+            if (buyerAsk >= sellerAsk):
                 reward = buyerAsk - minPrice
                     
-            else:
-                reward = 0
+            # else:
+            #     reward = 0
             
             if sellerAsk <=0:
                 reward = -100
